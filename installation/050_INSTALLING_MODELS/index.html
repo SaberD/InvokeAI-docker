@@ -915,8 +915,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#installing-ckpt-and-safetensors-models" class="md-nav__link">
-    Installing .ckpt and .safetensors models
+  <a href="#installing-individual-ckpt-and-safetensors-models" class="md-nav__link">
+    Installing individual .ckpt and .safetensors models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#importing-a-batch-of-ckpt-and-safetensors-models-from-a-directory" class="md-nav__link">
+    Importing a batch of .ckpt and .safetensors models from a directory
   </a>
   
 </li>
@@ -1432,6 +1439,13 @@ Library</a> for more information.</p>
 only <code>.safetensors</code> and <code>.ckpt</code> models, but they can be easily loaded
 into InvokeAI and/or converted into optimized <code>diffusers</code> models. Be
 aware that CIVITAI hosts many models that generate NSFW content.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>InvokeAI 2.3.x does not support directly importing and
+running Stable Diffusion version 2 checkpoint models. You may instead
+convert them into <code>diffusers</code> models using the conversion methods
+described below.</p>
+</div>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
 <p>There are multiple ways to install and manage models:</p>
 <ol>
@@ -1444,7 +1458,7 @@ aware that CIVITAI hosts many models that generate NSFW content.</p>
 </li>
 <li>
 <p>The web interface (WebUI) has a GUI for importing and managing
-models.</p>
+   models.</p>
 </li>
 </ol>
 <h3 id="installation-via-invokeai-configure">Installation via <code>invokeai-configure</code><a class="headerlink" href="#installation-via-invokeai-configure" title="Permanent link">#</a></h3>
@@ -1457,7 +1471,7 @@ confirm that the files are complete.</p>
 <h3 id="installation-via-the-cli">Installation via the CLI<a class="headerlink" href="#installation-via-the-cli" title="Permanent link">#</a></h3>
 <p>You can install a new model, including any of the community-supported ones, via
 the command-line client's <code>!import_model</code> command.</p>
-<h4 id="installing-ckpt-and-safetensors-models">Installing <code>.ckpt</code> and <code>.safetensors</code> models<a class="headerlink" href="#installing-ckpt-and-safetensors-models" title="Permanent link">#</a></h4>
+<h4 id="installing-individual-ckpt-and-safetensors-models">Installing individual <code>.ckpt</code> and <code>.safetensors</code> models<a class="headerlink" href="#installing-individual-ckpt-and-safetensors-models" title="Permanent link">#</a></h4>
 <p>If the model is already downloaded to your local disk, use
 <code>!import_model /path/to/file.ckpt</code> to load it. For example:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>invoke&gt;<span class="w"> </span>!import_model<span class="w"> </span>C:/Users/fred/Downloads/martians.safetensors
@@ -1475,24 +1489,43 @@ you must double them like this:
 </code></pre></div>
 <p>For this to work, the URL must not be password-protected. Otherwise
 you will receive a 404 error.</p>
-<p>When you import a legacy model, the CLI will ask you a few questions
-about the model, including what size image it was trained on (usually
-512x512), what name and description you wish to use for it, what
-configuration file to use for it (usually the default
-<code>v1-inference.yaml</code>), whether you'd like to make this model the
-default at startup time, and whether you would like to install a
-custom VAE (variable autoencoder) file for the model. For recent
-models, the answer to the VAE question is usually "no," but it won't
-hurt to answer "yes".</p>
+<p>When you import a legacy model, the CLI will first ask you what type
+of model this is. You can indicate whether it is a model based on
+Stable Diffusion 1.x (1.4 or 1.5), one based on Stable Diffusion 2.x,
+or a 1.x inpainting model. Be careful to indicate the correct model
+type, or it will not load correctly. You can correct the model type
+after the fact using the <code>!edit_model</code> command.</p>
+<p>The system will then ask you a few other questions about the model,
+including what size image it was trained on (usually 512x512), what
+name and description you wish to use for it, and whether you would
+like to install a custom VAE (variable autoencoder) file for the
+model. For recent models, the answer to the VAE question is usually
+"no," but it won't hurt to answer "yes".</p>
+<p>After importing, the model will load. If this is successful, you will
+be asked if you want to keep the model loaded in memory to start
+generating immediately. You'll also be asked if you wish to make this
+the default model on startup. You can change this later using
+<code>!edit_model</code>.</p>
+<h4 id="importing-a-batch-of-ckpt-and-safetensors-models-from-a-directory">Importing a batch of <code>.ckpt</code> and <code>.safetensors</code> models from a directory<a class="headerlink" href="#importing-a-batch-of-ckpt-and-safetensors-models-from-a-directory" title="Permanent link">#</a></h4>
+<p>You may also point <code>!import_model</code> to a directory containing a set of
+<code>.ckpt</code> or <code>.safetensors</code> files. They will be imported <em>en masse</em>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">invoke&gt; !import_model C:/Users/fred/Downloads/civitai_models/</span>
+</code></pre></div>
+</div>
+<p>You will be given the option to import all models found in the
+directory, or select which ones to import. If there are subfolders
+within the directory, they will be searched for models to import.</p>
 <h4 id="installing-diffusers-models">Installing <code>diffusers</code> models<a class="headerlink" href="#installing-diffusers-models" title="Permanent link">#</a></h4>
 <p>You can install a <code>diffusers</code> model from the HuggingFace site using
 <code>!import_model</code> and the HuggingFace repo_id for the model:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt;<span class="w"> </span>!import_model<span class="w"> </span>andite/anything-v4.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt;<span class="w"> </span>!import_model<span class="w"> </span>andite/anything-v4.0
 </code></pre></div>
 <p>Alternatively, you can download the model to disk and import it from
 there. The model may be distributed as a ZIP file, or as a Git
 repository:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt;<span class="w"> </span>!import_model<span class="w"> </span>C:/Users/fred/Downloads/andite--anything-v4.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt;<span class="w"> </span>!import_model<span class="w"> </span>C:/Users/fred/Downloads/andite--anything-v4.0
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">The CLI supports file path autocompletion<p>Type a bit of the path name and hit <span class="keys"><kbd class="key-tab">Tab</kbd></span> in order to get a choice of
@@ -1517,7 +1550,7 @@ to load and run faster without loss of image quality.</p>
 <p>The usage is identical to <code>!import_model</code>. You may point the command
 to either a downloaded model file on disk, or to a (non-password
 protected) URL:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt;<span class="w"> </span>!convert_model<span class="w"> </span>C:/Users/fred/Downloads/martians.safetensors
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invoke&gt;<span class="w"> </span>!convert_model<span class="w"> </span>C:/Users/fred/Downloads/martians.safetensors
 </code></pre></div>
 <p>After a successful conversion, the CLI will offer you the option of
 deleting the original <code>.ckpt</code> or <code>.safetensors</code> file.</p>
@@ -1527,7 +1560,7 @@ file and wish to convert it into a <code>diffusers</code> model, you can do this
 without re-downloading and converting the original file using the
 <code>!optimize_model</code> command. Simply pass the short name of an existing
 installed model:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invoke&gt;<span class="w"> </span>!optimize_model<span class="w"> </span>martians-v1.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt;<span class="w"> </span>!optimize_model<span class="w"> </span>martians-v1.0
 </code></pre></div>
 <p>The model will be converted into <code>diffusers</code> format and replace the
 previously installed version. You will again be offered the
@@ -1553,31 +1586,31 @@ application), open the file <code>configs/models.yaml</code>, and add a new
 stanza that follows this model:</p>
 <h4 id="a-legacy-model">A legacy model<a class="headerlink" href="#a-legacy-model" title="Permanent link">#</a></h4>
 <p>A legacy <code>.ckpt</code> or <code>.safetensors</code> entry will look like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">arabian-nights-1.0</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A great fine-tune in Arabian Nights style</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">weights</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./path/to/arabian-nights-1.0.ckpt</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./configs/stable-diffusion/v1-inference.yaml</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ckpt</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">height</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">arabian-nights-1.0</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A great fine-tune in Arabian Nights style</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">weights</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./path/to/arabian-nights-1.0.ckpt</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./configs/stable-diffusion/v1-inference.yaml</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ckpt</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="nt">width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nt">height</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
 <p>Note that <code>format</code> is <code>ckpt</code> for both <code>.ckpt</code> and <code>.safetensors</code> files.</p>
 <h4 id="a-diffusers-model">A diffusers model<a class="headerlink" href="#a-diffusers-model" title="Permanent link">#</a></h4>
 <p>A stanza for a <code>diffusers</code> model will look like this for a HuggingFace
 model with a repository ID:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">arabian-nights-1.1</span><span class="p">:</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">An even better fine-tune of the Arabian Nights</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">repo_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captahab/arabian-nights-1.1</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diffusers</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<p>And for a downloaded directory:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">arabian-nights-1.1</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">An even better fine-tune of the Arabian Nights</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/captahab-arabian-nights-1.1</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">repo_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captahab/arabian-nights-1.1</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diffusers</span>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>And for a downloaded directory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">arabian-nights-1.1</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">An even better fine-tune of the Arabian Nights</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/captahab-arabian-nights-1.1</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diffusers</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <p>There is additional syntax for indicating an external VAE to use with
 this model. See <code>INITIAL_MODELS.yaml</code> and <code>models.yaml</code> for examples.</p>
@@ -1630,12 +1663,12 @@ InvokeAI root directory's <code>invokeai.init</code> initialization file.</p>
 </ul>
 <p>Here is an example of providing an argument on the command line using
 the <code>invoke.sh</code> launch script:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke.sh<span class="w"> </span>--autoconvert<span class="w"> </span>/home/fred/stable-diffusion-checkpoints
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke.sh<span class="w"> </span>--autoconvert<span class="w"> </span>/home/fred/stable-diffusion-checkpoints
 </code></pre></div>
 <p>And here is what the same argument looks like in <code>invokeai.init</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>--outdir=&quot;/home/fred/invokeai/outputs
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>--no-nsfw_checker
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>--autoconvert /home/fred/stable-diffusion-checkpoints
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>--outdir<span class="o">=</span><span class="s2">&quot;/home/fred/invokeai/outputs</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="s2">--no-nsfw_checker</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="s2">--autoconvert /home/fred/stable-diffusion-checkpoints</span>
 </code></pre></div>
 
   <hr>
