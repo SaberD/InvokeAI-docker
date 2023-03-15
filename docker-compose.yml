@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  invokeai:
+    image: invokeai/invokeai:main-cuda
+    container_name: invokeai
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./volumes/data:/data
+      - ./volumes/models:/data/models
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN}
+    ports:
+      - "9090:9090"
+    cap_add:
+      - sys_nice
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
